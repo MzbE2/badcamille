@@ -53,6 +53,9 @@
     cursor: pointer; position: relative; z-index: 1;
   }
   .icon-btn:hover { background: rgba(251,250,246,0.24); }
+  .icon-btn:disabled { opacity: 0.4; cursor: default; }
+  .icon-btn:disabled:hover { background: rgba(251,250,246,0.14); }
+  .header-actions { display: flex; gap: 8px; flex-wrap: wrap; position: relative; z-index: 1; }
 
   .empty { background: var(--panel); border: 1px dashed var(--panel-border); border-radius: 16px; padding: 40px 24px; text-align:center; color: var(--ink-soft); }
   .empty .shuttle { font-size: 40px; display:block; margin-bottom:10px; }
@@ -111,7 +114,10 @@
       <h1>🏸 Échelle de badminton</h1>
       <div class="hint">Clique sur ton prénom pour valider ta victoire</div>
     </div>
-    <button class="icon-btn" id="manageBtn">⚙️ Gérer les élèves</button>
+    <div class="header-actions">
+      <button class="icon-btn" id="undoBtn" disabled>↩️ Annuler la dernière victoire</button>
+      <button class="icon-btn" id="manageBtn">⚙️ Gérer les élèves</button>
+    </div>
   </header>
 
   <div id="emptyState" class="empty" style="display:none;">
@@ -154,14 +160,17 @@
 <script>
 (function () {
   const STORAGE_KEY = 'bw-ladder-simple-v1';
-  let state = { students: {} }; // name -> { level: n }
+  let state = { students: {}, history: [] }; // name -> { level: n }, history: [{name, from, to}]
 
   function loadState() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
-        if (parsed && parsed.students) state = parsed;
+        if (parsed && parsed.students) {
+          state = parsed;
+          if (!Array.isArray(state.history)) state.history = [];
+        }
       }
     } catch (e) { console.error('Lecture impossible', e); }
   }
@@ -190,6 +199,7 @@
       empty.style.display = 'block';
       wrap.style.display = 'none';
       renderRoster();
+      updateUndoButton();
       return;
     }
     empty.style.display = 'none';
@@ -230,13 +240,39 @@
       ladder.appendChild(col);
     }
     renderRoster();
+    updateUndoButton();
   }
 
   function onWin(name) {
     if (!state.students[name]) return;
-    state.students[name].level += 1;
+    const from = state.students[name].level;
+    state.students[name].level = from + 1;
+    state.history.push({ name, from, to: from + 1 });
+    if (state.history.length > 100) state.history.shift();
     saveState();
     render();
+  }
+
+  function undoLastWin() {
+    if (!state.history || state.history.length === 0) return;
+    const last = state.history.pop();
+    if (state.students[last.name]) {
+      state.students[last.name].level = last.from;
+    }
+    saveState();
+    render();
+  }
+
+  function updateUndoButton() {
+    const btn = document.getElementById('undoBtn');
+    const has = state.history && state.history.length > 0;
+    btn.disabled = !has;
+    if (has) {
+      const last = state.history[state.history.length - 1];
+      btn.textContent = `↩️ Annuler : ${last.name} (col. ${last.to} → ${last.from})`;
+    } else {
+      btn.textContent = '↩️ Annuler la dernière victoire';
+    }
   }
 
   function renderRoster() {
@@ -270,6 +306,7 @@
   const overlay = document.getElementById('manageOverlay');
   function openManage() { overlay.classList.add('open'); renderRoster(); }
   function closeManage() { overlay.classList.remove('open'); }
+  document.getElementById('undoBtn').addEventListener('click', undoLastWin);
   document.getElementById('manageBtn').addEventListener('click', openManage);
   document.getElementById('emptyAddBtn').addEventListener('click', openManage);
   document.getElementById('closeManage').addEventListener('click', closeManage);
@@ -296,6 +333,7 @@
   document.getElementById('clearAllBtn').addEventListener('click', () => {
     if (!confirm('Effacer tous les élèves ? Cette action est irréversible.')) return;
     state.students = {};
+    state.history = [];
     saveState();
     render();
   });
