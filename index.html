@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Échelle de Badminton</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --court: #17493B;
+    --court-2: #216450;
+    --line: #FBFAF6;
+    --volant: #D9A62E;
+    --volant-2: #F0C24B;
+    --net: #3E7CA6;
+    --ink: #142420;
+    --ink-soft: #4B5C55;
+    --bg: #F1F4EF;
+    --panel: #FFFFFF;
+    --panel-border: #DCE3D8;
+    --danger: #B4472D;
+    --shadow: rgba(20, 36, 32, 0.12);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --court: #0E3329;
+      --court-2: #164A3A;
+      --line: #EDEAE0;
+      --volant: #E0B23B;
+      --volant-2: #F0C24B;
+      --net: #6FA8CC;
+      --ink: #EDEFEA;
+      --ink-soft: #B7C2BC;
+      --bg: #0F1613;
+      --panel: #182420;
+      --panel-border: #2A3B34;
+      --danger: #E17356;
+      --shadow: rgba(0, 0, 0, 0.4);
+    }
+  }
+  :root[data-theme="dark"] {
+    --court: #0E3329;
+    --court-2: #164A3A;
+    --line: #EDEAE0;
+    --volant: #E0B23B;
+    --volant-2: #F0C24B;
+    --net: #6FA8CC;
+    --ink: #EDEFEA;
+    --ink-soft: #B7C2BC;
+    --bg: #0F1613;
+    --panel: #182420;
+    --panel-border: #2A3B34;
+    --danger: #E17356;
+    --shadow: rgba(0, 0, 0, 0.4);
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Work Sans', system-ui, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+  h1, h2, h3, .display {
+    font-family: 'Anton', 'Work Sans', sans-serif;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+  }
+
+  .app { max-width: 1100px; margin: 0 auto; padding: 18px 16px 60px; }
+
+  /* Header */
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap;
+    background: var(--court);
+    color: var(--line);
+    border-radius: 18px;
+    padding: 18px 22px;
+    margin-bottom: 18px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::after {
+    content: "";
+    position: absolute; right: -30px; top: -30px;
+    width: 160px; height: 160px;
+    border: 3px solid rgba(251,250,246,0.12);
+    border-radius: 50%;
+  }
+  header::before {
+    content: "";
+    position: absolute; right: 40px; bottom: -60px;
+    width: 120px; height: 120px;
+    border: 3px solid rgba(251,250,246,0.10);
+    border-radius: 50%;
+  }
+  .title-block { position: relative; z-index: 1; }
+  .title-block h1 {
+    margin: 0; font-size: 30px; line-height: 1;
+    text-transform: uppercase;
+  }
+  .title-block input.classname {
+    background: transparent; border: none; border-bottom: 2px dashed rgba(251,250,246,0.4);
+    color: var(--line); font-family: 'Work Sans', sans-serif; font-size: 14px;
+    padding: 4px 0; margin-top: 8px; width: 220px; outline: none;
+  }
+  .title-block input.classname::placeholder { color: rgba(251,250,246,0.55); }
+  .header-actions { display: flex; gap: 8px; position: relative; z-index: 1; }
+  .icon-btn {
+    background: rgba(251,250,246,0.14);
+    border: 1px solid rgba(251,250,246,0.3);
+    color: var(--line);
+    border-radius: 10px;
+    padding: 9px 14px;
+    font-family: 'Work Sans', sans-serif;
+    font-weight: 600; font-size: 13.5px;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .icon-btn:hover { background: rgba(251,250,246,0.24); }
+
+  /* Empty state */
+  .empty {
+    background: var(--panel);
+    border: 1px dashed var(--panel-border);
+    border-radius: 16px;
+    padding: 40px 24px;
+    text-align: center;
+    color: var(--ink-soft);
+  }
+  .empty .shuttle { font-size: 40px; display:block; margin-bottom: 10px; }
+  .empty button {
+    margin-top: 14px;
+    background: var(--volant); color: #2A2107;
+    border: none; border-radius: 10px; padding: 11px 20px;
+    font-weight: 700; font-size: 14.5px; cursor: pointer;
+  }
+
+  /* Ladder */
+  .ladder-wrap { overflow-x: auto; padding-bottom: 6px; }
+  .ladder {
+    display: flex; gap: 12px; align-items: flex-start;
+    min-width: min-content;
+  }
+  .column {
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 14px;
+    min-width: 168px;
+    flex: 0 0 168px;
+    padding: 10px;
+    box-shadow: 0 2px 10px var(--shadow);
+  }
+  .column-head {
+    display: flex; align-items: baseline; gap: 6px;
+    padding: 4px 4px 10px;
+    border-bottom: 2px solid var(--bg);
+    margin-bottom: 8px;
+  }
+  .column-head .num {
+    font-family: 'Anton', sans-serif; font-size: 26px; color: var(--court-2);
+    line-height: 1;
+  }
+  :root[data-theme="dark"] .column-head .num,
+  @media (prefers-color-scheme: dark) { .column-head .num { color: var(--net); } }
+  .column-head .label { font-size: 11px; color: var(--ink-soft); text-transform: none; }
+  .chip-list { display: flex; flex-direction: column; gap: 6px; min-height: 30px; }
+  .chip {
+    background: var(--bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 9px;
+    padding: 9px 10px;
+    font-size: 14px; font-weight: 500;
+    cursor: pointer;
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 6px;
+    transition: transform .12s ease, box-shadow .12s ease;
+  }
+  .chip:hover { transform: translateY(-1px); box-shadow: 0 3px 8px var(--shadow); }
+  .chip.selected {
+    background: var(--volant); color: #2A2107; border-color: var(--volant);
+    font-weight: 700;
+  }
+  .chip .streak { font-size: 11px; opacity: 0.65; }
+  .col-empty { font-size: 12.5px; color: var(--ink-soft); padding: 8px 4px; font-style: italic; }
+
+  /* Match panel */
+  .match-panel {
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 16px;
+    padding: 18px 20px;
+    margin-top: 18px;
+    box-shadow: 0 4px 16px var(--shadow);
+  }
+  .match-panel h2 { margin: 0 0 4px; font-size: 20px; }
+  .match-panel .sub { color: var(--ink-soft); font-size: 13.5px; margin-bottom: 14px; }
+  .opponent-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+  .opponent-btn {
+    background: var(--bg); border: 1px solid var(--panel-border);
+    border-radius: 10px; padding: 10px 16px; font-size: 14px; font-weight: 600;
+    cursor: pointer;
+  }
+  .opponent-btn:hover { border-color: var(--net); }
+  .no-opponent { color: var(--ink-soft); font-size: 14px; }
+  .winner-row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .winner-btn {
+    flex: 1 1 200px;
+    background: var(--bg); border: 2px solid var(--panel-border);
+    border-radius: 12px; padding: 16px; cursor: pointer;
+    text-align: left;
+  }
+  .winner-btn:hover { border-color: var(--volant); }
+  .winner-btn .who { font-size: 16px; font-weight: 700; margin-bottom: 2px; }
+  .winner-btn .lvl { font-size: 12.5px; color: var(--ink-soft); }
+  .winner-btn .cta { margin-top: 8px; font-size: 12.5px; color: var(--net); font-weight: 600; }
+  .cancel-link {
+    display: inline-block; margin-top: 12px; font-size: 13px; color: var(--ink-soft);
+    cursor: pointer; text-decoration: underline;
+  }
+
+  /* History */
+  .history-section { margin-top: 26px; }
+  .history-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .history-head h2 { font-size: 18px; margin: 0; }
+  .undo-btn {
+    background: none; border: 1px solid var(--panel-border); color: var(--ink-soft);
+    border-radius: 8px; padding: 6px 12px; font-size: 12.5px; cursor: pointer;
+  }
+  .undo-btn:hover { border-color: var(--danger); color: var(--danger); }
+  .history-list { display: flex; flex-direction: column; gap: 6px; max-height: 260px; overflow-y: auto; }
+  .history-item {
+    background: var(--panel); border: 1px solid var(--panel-border);
+    border-radius: 10px; padding: 9px 12px; font-size: 13.5px;
+    display: flex; justify-content: space-between; gap: 10px;
+  }
+  .history-item .txt b { font-weight: 700; }
+  .history-item .when { color: var(--ink-soft); font-size: 12px; white-space: nowrap; }
+  .no-history { color: var(--ink-soft); font-size: 13.5px; font-style: italic; }
+
+  /* Modal */
+  .overlay {
+    position: fixed; inset: 0; background: rgba(10,15,13,0.5);
+    display: none; align-items: center; justify-content: center; padding: 16px; z-index: 50;
+  }
+  .overlay.open { display: flex; }
+  .modal {
+    background: var(--panel); border-radius: 16px; padding: 22px;
+    max-width: 480px; width: 100%; max-height: 86vh; overflow-y: auto;
+  }
+  .modal h2 { margin: 0 0 14px; font-size: 20px; }
+  .modal label { font-size: 13px; font-weight: 600; color: var(--ink-soft); display:block; margin-bottom:6px; }
+  .modal textarea, .modal input[type=text] {
+    width: 100%; border: 1px solid var(--panel-border); border-radius: 10px;
+    padding: 10px; font-family: inherit; font-size: 14px; background: var(--bg); color: var(--ink);
+    margin-bottom: 14px; resize: vertical;
+  }
+  .modal-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn {
+    border: none; border-radius: 10px; padding: 10px 16px; font-weight: 700; font-size: 13.5px; cursor: pointer;
+  }
+  .btn-primary { background: var(--volant); color: #2A2107; }
+  .btn-ghost { background: var(--bg); color: var(--ink); border: 1px solid var(--panel-border); }
+  .btn-danger { background: transparent; color: var(--danger); border: 1px solid var(--danger); }
+  .roster-list { margin-top: 6px; margin-bottom: 16px; border-top: 1px solid var(--panel-border); padding-top: 10px; }
+  .roster-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 2px; font-size: 13.5px; }
+  .roster-row .rm { color: var(--danger); cursor: pointer; font-size: 12px; font-weight: 600; }
+  .close-x { position: absolute; top: 16px; right: 18px; background: none; border: none; font-size: 20px; cursor: pointer; color: var(--ink-soft); }
+  .modal { position: relative; }
+  hr.sep { border: none; border-top: 1px solid var(--panel-border); margin: 16px 0; }
+
+  footer.tip { margin-top: 22px; text-align: center; color: var(--ink-soft); font-size: 12.5px; }
+
+  @media (max-width: 480px) {
+    .title-block h1 { font-size: 24px; }
+    .column { min-width: 138px; flex-basis: 138px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header>
+    <div class="title-block">
+      <h1>🏸 Échelle de badminton</h1>
+      <input class="classname" id="classNameInput" placeholder="Nom de la classe (facultatif)">
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" id="manageBtn">⚙️ Gérer les élèves</button>
+    </div>
+  </header>
+
+  <div id="emptyState" class="empty" style="display:none;">
+    <span class="shuttle">🏸</span>
+    <div><b>Aucun élève pour l'instant.</b></div>
+    <div>Ajoutez la liste de la classe pour démarrer l'échelle — tout le monde commence au niveau 1.</div>
+    <button id="emptyAddBtn">Ajouter les élèves</button>
+  </div>
+
+  <div id="ladderWrap" class="ladder-wrap" style="display:none;">
+    <div class="ladder" id="ladder"></div>
+  </div>
+
+  <div id="matchPanel"></div>
+
+  <div class="history-section" id="historySection" style="display:none;">
+    <div class="history-head">
+      <h2>Historique des matchs</h2>
+      <button class="undo-btn" id="undoBtn">↩️ Annuler le dernier match</button>
+    </div>
+    <div class="history-list" id="historyList"></div>
+  </div>
+
+  <footer class="tip">Chaque élève clique sur son nom, choisit son adversaire dans la même colonne, puis indique qui a gagné.</footer>
+</div>
+
+<!-- Manage modal -->
+<div class="overlay" id="manageOverlay">
+  <div class="modal">
+    <button class="close-x" id="closeManage">✕</button>
+    <h2>Gérer les élèves</h2>
+
+    <label for="bulkNames">Ajouter des élèves (un nom par ligne) — arrivent au niveau 1</label>
+    <textarea id="bulkNames" rows="4" placeholder="Léo Martin&#10;Nina Dubois&#10;..."></textarea>
+    <div class="modal-actions" style="margin-bottom:16px;">
+      <button class="btn btn-primary" id="addBulkBtn">Ajouter</button>
+    </div>
+
+    <hr class="sep">
+    <label>Liste actuelle (<span id="rosterCount">0</span> élève·s)</label>
+    <div class="roster-list" id="rosterList"></div>
+
+    <hr class="sep">
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="resetLevelsBtn">Remettre tout le monde niveau 1</button>
+      <button class="btn btn-danger" id="clearAllBtn">Tout effacer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const STORAGE_KEY = 'bw-ladder-v1';
+  let state = { students: {}, history: [], className: '' };
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === 'object') {
+          state = Object.assign({ students: {}, history: [], className: '' }, parsed);
+        }
+      }
+    } catch (e) { console.error('Lecture impossible', e); }
+  }
+
+  function saveState() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+    catch (e) { console.error('Sauvegarde impossible', e); }
+  }
+
+  let selectedPlayer = null;
+  let selectedOpponent = null;
+
+  function studentNames() { return Object.keys(state.students); }
+
+  function levelOf(name) { return state.students[name] ? state.students[name].level : null; }
+
+  function studentsAtLevel(level) {
+    return studentNames().filter(n => levelOf(n) === level).sort((a,b)=>a.localeCompare(b,'fr'));
+  }
+
+  function maxLevel() {
+    let m = 1;
+    studentNames().forEach(n => { if (state.students[n].level > m) m = state.students[n].level; });
+    return m;
+  }
+
+  function render() {
+    document.getElementById('classNameInput').value = state.className || '';
+    const names = studentNames();
+    const empty = document.getElementById('emptyState');
+    const ladderWrap = document.getElementById('ladderWrap');
+    const historySection = document.getElementById('historySection');
+
+    if (names.length === 0) {
+      empty.style.display = 'block';
+      ladderWrap.style.display = 'none';
+      historySection.style.display = 'none';
+      document.getElementById('matchPanel').innerHTML = '';
+      renderRoster();
+      return;
+    }
+    empty.style.display = 'none';
+    ladderWrap.style.display = 'block';
+    historySection.style.display = 'block';
+
+    const top = maxLevel();
+    const showUpTo = top + 1; // extra empty column ahead so movement is visible
+    const ladder = document.getElementById('ladder');
+    ladder.innerHTML = '';
+
+    for (let lvl = 1; lvl <= showUpTo; lvl++) {
+      const col = document.createElement('div');
+      col.className = 'column';
+
+      const head = document.createElement('div');
+      head.className = 'column-head';
+      head.innerHTML = `<span class="num">${lvl}</span><span class="label">${lvl === 1 ? 'Niveau 1' : 'Niveau ' + lvl}</span>`;
+      col.appendChild(head);
+
+      const list = document.createElement('div');
+      list.className = 'chip-list';
+      const inCol = studentsAtLevel(lvl);
+
+      if (inCol.length === 0) {
+        const e = document.createElement('div');
+        e.className = 'col-empty';
+        e.textContent = lvl > top ? 'À conquérir…' : 'Personne ici';
+        list.appendChild(e);
+      } else {
+        inCol.forEach(name => {
+          const chip = document.createElement('div');
+          chip.className = 'chip' + (selectedPlayer === name ? ' selected' : '');
+          chip.innerHTML = `<span>${escapeHtml(name)}</span>`;
+          chip.addEventListener('click', () => onChipClick(name));
+          list.appendChild(chip);
+        });
+      }
+      col.appendChild(list);
+      ladder.appendChild(col);
+    }
+
+    renderMatchPanel();
+    renderHistory();
+    renderRoster();
+  }
+
+  function onChipClick(name) {
+    if (selectedPlayer === name) {
+      selectedPlayer = null; selectedOpponent = null;
+    } else {
+      selectedPlayer = name; selectedOpponent = null;
+    }
+    render();
+    if (selectedPlayer) {
+      setTimeout(() => {
+        const panel = document.getElementById('matchPanel');
+        if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 50);
+    }
+  }
+
+  function renderMatchPanel() {
+    const panel = document.getElementById('matchPanel');
+    if (!selectedPlayer || !state.students[selectedPlayer]) { panel.innerHTML = ''; return; }
+    const lvl = levelOf(selectedPlayer);
+
+    if (!selectedOpponent) {
+      const opponents = studentsAtLevel(lvl).filter(n => n !== selectedPlayer);
+      let html = `<div class="match-panel">
+        <h2>${escapeHtml(selectedPlayer)} — niveau ${lvl}</h2>
+        <div class="sub">Contre qui as-tu joué ?</div>`;
+      if (opponents.length === 0) {
+        html += `<div class="no-opponent">Personne d'autre au niveau ${lvl} pour l'instant. Attends qu'un·e camarade te rejoigne, ou choisis un autre nom.</div>`;
+      } else {
+        html += `<div class="opponent-grid">` +
+          opponents.map(o => `<button class="opponent-btn" data-opp="${escapeAttr(o)}">${escapeHtml(o)}</button>`).join('') +
+          `</div>`;
+      }
+      html += `<div class="cancel-link" id="cancelMatch">Annuler</div></div>`;
+      panel.innerHTML = html;
+
+      panel.querySelectorAll('.opponent-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          selectedOpponent = btn.getAttribute('data-opp');
+          render();
+        });
+      });
+      const cancel = document.getElementById('cancelMatch');
+      if (cancel) cancel.addEventListener('click', () => { selectedPlayer = null; selectedOpponent = null; render(); });
+      return;
+    }
+
+    // Winner selection
+    const html = `<div class="match-panel">
+      <h2>${escapeHtml(selectedPlayer)} vs ${escapeHtml(selectedOpponent)}</h2>
+      <div class="sub">Qui a gagné le match ? (niveau ${lvl})</div>
+      <div class="winner-row">
+        <button class="winner-btn" data-winner="${escapeAttr(selectedPlayer)}" data-loser="${escapeAttr(selectedOpponent)}">
+          <div class="who">${escapeHtml(selectedPlayer)}</div>
+          <div class="lvl">Monterait au niveau ${lvl + 1}</div>
+          <div class="cta">A gagné →</div>
+        </button>
+        <button class="winner-btn" data-winner="${escapeAttr(selectedOpponent)}" data-loser="${escapeAttr(selectedPlayer)}">
+          <div class="who">${escapeHtml(selectedOpponent)}</div>
+          <div class="lvl">Monterait au niveau ${lvl + 1}</div>
+          <div class="cta">A gagné →</div>
+        </button>
+      </div>
+      <div class="cancel-link" id="cancelMatch2">Annuler</div>
+    </div>`;
+    panel.innerHTML = html;
+
+    panel.querySelectorAll('.winner-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        recordMatch(btn.getAttribute('data-winner'), btn.getAttribute('data-loser'));
+      });
+    });
+    const cancel2 = document.getElementById('cancelMatch2');
+    if (cancel2) cancel2.addEventListener('click', () => { selectedOpponent = null; render(); });
+  }
+
+  function recordMatch(winner, loser) {
+    if (!state.students[winner] || !state.students[loser]) return;
+    const fromLevel = state.students[winner].level;
+    state.students[winner].level = fromLevel + 1;
+    state.history.unshift({
+      winner, loser, from: fromLevel, to: fromLevel + 1, ts: Date.now()
+    });
+    selectedPlayer = null; selectedOpponent = null;
+    saveState();
+    render();
+  }
+
+  function renderHistory() {
+    const list = document.getElementById('historyList');
+    if (state.history.length === 0) {
+      list.innerHTML = '<div class="no-history">Aucun match enregistré pour l\'instant.</div>';
+      return;
+    }
+    list.innerHTML = state.history.slice(0, 60).map(h => {
+      const d = new Date(h.ts);
+      const when = d.toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit' }) + ' ' +
+                   d.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
+      return `<div class="history-item">
+        <div class="txt">🏆 <b>${escapeHtml(h.winner)}</b> bat ${escapeHtml(h.loser)} — niveau ${h.from} → ${h.to}</div>
+        <div class="when">${when}</div>
+      </div>`;
+    }).join('');
+  }
+
+  document.getElementById('undoBtn').addEventListener('click', () => {
+    if (state.history.length === 0) return;
+    const last = state.history.shift();
+    if (state.students[last.winner]) {
+      state.students[last.winner].level = last.from;
+    }
+    saveState();
+    render();
+  });
+
+  function renderRoster() {
+    const roster = document.getElementById('rosterList');
+    const names = studentNames().sort((a,b)=>a.localeCompare(b,'fr'));
+    document.getElementById('rosterCount').textContent = names.length;
+    if (names.length === 0) {
+      roster.innerHTML = '<div class="no-history">Personne pour l\'instant.</div>';
+      return;
+    }
+    roster.innerHTML = names.map(n =>
+      `<div class="roster-row"><span>${escapeHtml(n)} — niveau ${levelOf(n)}</span><span class="rm" data-name="${escapeAttr(n)}">retirer</span></div>`
+    ).join('');
+    roster.querySelectorAll('.rm').forEach(el => {
+      el.addEventListener('click', () => {
+        const name = el.getAttribute('data-name');
+        if (confirm(`Retirer ${name} de l'échelle ?`)) {
+          delete state.students[name];
+          if (selectedPlayer === name) { selectedPlayer = null; selectedOpponent = null; }
+          if (selectedOpponent === name) selectedOpponent = null;
+          saveState();
+          render();
+        }
+      });
+    });
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function escapeAttr(s) { return escapeHtml(s); }
+
+  // Manage modal wiring
+  const overlay = document.getElementById('manageOverlay');
+  function openManage() { overlay.classList.add('open'); renderRoster(); }
+  function closeManage() { overlay.classList.remove('open'); }
+  document.getElementById('manageBtn').addEventListener('click', openManage);
+  document.getElementById('emptyAddBtn').addEventListener('click', openManage);
+  document.getElementById('closeManage').addEventListener('click', closeManage);
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) closeManage(); });
+
+  document.getElementById('addBulkBtn').addEventListener('click', () => {
+    const raw = document.getElementById('bulkNames').value;
+    const names = raw.split('\n').map(s => s.trim()).filter(Boolean);
+    let added = 0;
+    names.forEach(name => {
+      if (!state.students[name]) { state.students[name] = { level: 1 }; added++; }
+    });
+    document.getElementById('bulkNames').value = '';
+    saveState();
+    render();
+    renderRoster();
+  });
+
+  document.getElementById('resetLevelsBtn').addEventListener('click', () => {
+    if (!confirm('Remettre tous les élèves au niveau 1 ? L\'historique sera conservé.')) return;
+    studentNames().forEach(n => state.students[n].level = 1);
+    saveState();
+    render();
+  });
+
+  document.getElementById('clearAllBtn').addEventListener('click', () => {
+    if (!confirm('Effacer tous les élèves et tout l\'historique ? Cette action est irréversible.')) return;
+    state.students = {};
+    state.history = [];
+    selectedPlayer = null; selectedOpponent = null;
+    saveState();
+    render();
+  });
+
+  document.getElementById('classNameInput').addEventListener('input', (e) => {
+    state.className = e.target.value;
+    saveState();
+    document.title = state.className ? `Échelle de badminton — ${state.className}` : 'Échelle de badminton';
+  });
+
+  loadState();
+  render();
+})();
+</script>
+</body>
+</html>
